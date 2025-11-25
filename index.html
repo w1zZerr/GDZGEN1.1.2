@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
     
     <style>
-    /* Stylish column multiplication result */
+    /* Stylish column result */
     #oms_ans {
       background: #f7e6f0;
       border-radius: 12px;
@@ -17,53 +17,75 @@
       box-shadow: 0 2px 12px rgba(193,154,164,0.10);
       min-width: 320px;
       display: inline-block;
+      text-align: left; 
+      font-family: monospace; /* Моноширинний шрифт для кращого вирівнювання */
+    }
+    #oms_ans h2 {
+      color: #c19aa4;
+      margin-top: 0;
+      margin-bottom: 5px;
+      font-size: 1.35rem;
     }
     #longMultiplicationCalculator h2 {
       color: #c19aa4;
       margin-bottom: 12px;
       font-size: 2rem;
     }
-    #longMultiplicationCalculator input, #longMultiplicationCalculator select, #longMultiplicationCalculator button {
+    /* Загальні стилі для всіх елементів керування */
+    #longMultiplicationCalculator input, #longMultiplicationCalculator select, #longMultiplicationCalculator button,
+    #unitConverter input, #unitConverter select, #unitConverter button,
+    #percentageCalculator input, #percentageCalculator button {
       font-size: 1.2rem;
       padding: 8px 12px;
       border-radius: 8px;
       border: 1px solid #c19aa4;
       margin: 0 4px;
     }
-    #longMultiplicationCalculator input:focus {
+    #longMultiplicationCalculator input:focus, #unitConverter input:focus, #percentageCalculator input:focus {
       outline: 2px solid #c19aa4;
     }
-    #oms_nabor {
+    .oms_nabor {
       background: #c19aa4;
       color: #fff;
       border: none;
       cursor: pointer;
       transition: background 0.2s;
     }
-    #oms_nabor:hover {
+    .oms_nabor:hover {
       background: #a87b8a;
     }
+    
+    /* Media queries для адаптивності */
     @media (max-width: 900px) {
-      #longMultiplicationCalculator {
+      #longMultiplicationCalculator, #unitConverter, #percentageCalculator {
         width: 100% !important;
         min-width: 0 !important;
         padding: 0 2vw;
       }
-      #oms_ans {
+      #oms_ans, #conv_ans, #perc_ans {
         min-width: 0 !important;
         width: 100% !important;
         font-size: 1.05rem !important;
         padding: 12px 4px !important;
         box-sizing: border-box;
       }
+      /* Адаптивність для всіх калькуляторів */
       #longMultiplicationCalculator input,
       #longMultiplicationCalculator select,
-      #longMultiplicationCalculator button {
+      #longMultiplicationCalculator button,
+      #unitConverter input,
+      #unitConverter select,
+      #unitConverter button,
+      #percentageCalculator input,
+      #percentageCalculator button {
         font-size: 1rem;
         padding: 6px 6px;
         width: 90%;
         margin: 4px 0;
         box-sizing: border-box;
+        display: block; /* Забезпечуємо вертикальне розташування на маленьких екранах */
+        margin-left: auto;
+        margin-right: auto;
       }
       #longMultiplicationCalculator div[style*='display:table'] {
         display: block !important;
@@ -73,9 +95,18 @@
         text-align: center !important;
         width: 100% !important;
       }
+      /* Стилі для flex-контейнерів в конвертері та відсотках */
+      #unitConverter > div, #percentageCalculator > div {
+          flex-direction: column;
+          gap: 0 !important;
+      }
+      #unitConverter span, #percentageCalculator span {
+          display: block;
+          margin: 5px 0;
+      }
     }
     @media (max-width: 600px) {
-      #oms_ans {
+      #oms_ans, #conv_ans, #perc_ans {
         font-size: 0.95rem !important;
       }
     }
@@ -121,33 +152,7 @@
 
     <h1 id="gdz" class="Colored">ГДЗ</h1> 
     <h1 class="Opis">ГДЗ [ Vshkole, gdzonline, shkolainua ]</h1>
-  <script>
-  // Кнопка "проиграть/пауза песню"
-  const playSongBtn = document.getElementById('playSongBtn');
-  const femboyAudio = document.getElementById('femboyAudio');
-  playSongBtn.onclick = function() {
-    if (femboyAudio.paused) {
-      femboyAudio.volume = 1;
-      femboyAudio.play();
-    } else {
-      femboyAudio.pause();
-    }
-  };
-  // Кнопка "наверх"
-  const toTopBtn = document.getElementById('toTopBtn');
-  window.addEventListener('scroll', function() {
-    if (window.scrollY > 200) {
-      toTopBtn.style.display = 'block';
-    } else {
-      toTopBtn.style.display = 'none';
-    }
-  });
-  toTopBtn.onclick = function() {
-    window.scrollTo({top: 0, behavior: 'smooth'});
-  };
-  // Скрыта по умолчанию
-  toTopBtn.style.display = 'none';
-  </script>
+
 
 <a class="fuck" href="#algebra">
    <div class="overflow_container">
@@ -232,12 +237,11 @@
 </div></a>
 
 </div>
-   <h1 id="Calculator" class="Colored">Калькулятор Множення В Стопчик</h1>
-   <h1 class="Opis">ДIЛЕННЯ РОЗРОБЛЯЕТСЯ!</h1>
+   <h1 id="Calculator" class="Colored">Калькулятор В Стопчик</h1>
+   <h1 class="Opis">Множення та Ділення</h1>
   <section class="lib" id="oms_blok1">
 
-<!-- Long Multiplication Calculator -->
-  <section id="longMultiplicationCalculator">
+<section id="longMultiplicationCalculator">
     <div style="display:table;margin:auto;">
       <div style="text-align:center;display:table-cell;vertical-align:middle;">
         <input id="oms_c1" class="oms_input_int_long" tabIndex="1" placeholder="Число 1">
@@ -245,64 +249,59 @@
       <div style="text-align:center;display:table-cell;vertical-align:middle;">
         <select id="Op" class="sign" tabIndex="2">
           <option value="×" selected>×</option>
+          <option value="÷">÷</option> 
         </select>
       </div>
       <div style="text-align:center;display:table-cell;vertical-align:middle;">
         <input id="oms_c2" class="oms_input_int_long" tabIndex="3" placeholder="Число 2">
       </div>
       <div style="text-align:center;display:table-cell;vertical-align:middle;">
-        <input id="oms_nabor" type="button" value="=" class="oms_button_calc" tabIndex="4">
+        <input id="oms_nabor" type="button" value="=" class="oms_button_calc oms_nabor" tabIndex="4">
       </div>
       <div style="text-align:center;display:table-cell;vertical-align:middle;">
         <div class="art" id="oms_ans"></div>
       </div>
     </div>
   </section>
-
-  <script>
-    // Long Multiplication Logic with true columnar shift
-    document.getElementById('oms_nabor').addEventListener('click', function() {
-      const num1 = document.getElementById('oms_c1').value.trim();
-      const num2 = document.getElementById('oms_c2').value.trim();
-      if (!/^-?\d+(\.\d+)?$/.test(num1) || !/^-?\d+(\.\d+)?$/.test(num2)) {
-        document.getElementById('oms_ans').innerHTML = '<span style="color:red;">Ошибка: Введите оба числа!</span>';
-        return;
-      }
-      // Only integer column multiplication for simplicity
-      const n1 = num1.split('.')[0];
-      const n2 = num2.split('.')[0];
-      let steps = '';
-      let partials = [];
-      for (let i = n2.length - 1; i >= 0; i--) {
-        const digit = parseInt(n2[i]);
-        if (isNaN(digit)) continue;
-        let partial = (parseInt(n1) * digit).toString();
-        // Сдвиг влево: добавляем пробелы слева
-        let shift = n2.length - 1 - i;
-        partials.push(' '.repeat(shift) + partial);
-      }
-      // Определяем ширину для выравнивания
-      let maxLen = Math.max(n1.length, n2.length + 2, ...partials.map(p => p.length));
-      steps += `<div style='font-family:monospace;text-align:right;font-size:1.5em;'>`;
-      steps += `${n1.padStart(maxLen, ' ')}<br>`;
-      steps += `×${n2.padStart(maxLen - 1, ' ')}<br>`;
-      steps += `${'-'.repeat(maxLen)}<br>`;
-      for (let i = 0; i < partials.length; i++) {
-        steps += `${partials[i].padStart(maxLen, ' ')}<br>`;
-      }
-      if (partials.length > 1) {
-        steps += `${'-'.repeat(maxLen)}<br>`;
-      }
-      const result = (parseInt(n1) * parseInt(n2)).toString();
-      steps += `<strong style='color:#c19aa4;'>${result.padStart(maxLen, ' ')}</strong>`;
-      steps += `</div>`;
-      document.getElementById('oms_ans').innerHTML = steps;
-    });
-  </script>
 </div>
+<h1 id="Converter" class="Colored">Конвертер Одиниць</h1>
+   <h1 class="Opis">Переведення Довжини, Маси та Часу</h1>
+  <section id="unitConverter">
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap: 8px;">
+        <select id="conv_category" class="oms_select" style="width: 150px; flex-grow: 1; max-width: 200px;">
+            <option value="length">Довжина (км, м, см)</option>
+            <option value="mass">Маса (кг, г, мг)</option>
+            <option value="time">Час (год, хв, сек)</option>
+        </select>
+        <input id="conv_value" type="number" step="any" placeholder="Значення" class="oms_input_int_long" style="width: 100px; flex-grow: 1;">
+        <select id="conv_from" class="oms_select" style="width: 80px; flex-grow: 1;">
+            </select>
+        <span><p>в</p></span>
+        <select id="conv_to" class="oms_select" style="width: 80px; flex-grow: 1;">
+            </select>
+        <input id="conv_nabor" type="button" value="=" class="oms_button_calc oms_nabor">
+    </div>
+    <div class="art" id="conv_ans" style="margin-top: 15px; background: #f7e6f0; border-radius: 12px; padding: 15px; box-shadow: 0 2px 12px rgba(193,154,164,0.10); text-align: center;"></div>
+  </section>
+
+<h1 id="PercentageCalculator" class="Colored" style="margin-top: 50px;">Калькулятор Відсотків</h1>
+   <h1 class="Opis">Знаходження відсотків</h1>
+    <section id="percentageCalculator" style="text-align: center;">
+        <div style="display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap: 8px;">
+            <input id="perc_x" type="number" step="any" placeholder="X" class="oms_input_int_long" style="width: 100px; flex-grow: 1;">
+            <span><p> є </p></span>
+            <input id="perc_y" type="number" step="any" placeholder="Y" class="oms_input_int_long" style="width: 80px; flex-grow: 1;">
+            <span><p> % від </p></span>
+            <input id="perc_z" type="number" step="any" placeholder="Z" class="oms_input_int_long" style="width: 100px; flex-grow: 1;">
+            <input id="perc_nabor" type="button" value="=" class="oms_button_calc oms_nabor">
+        </div>
+        <p class="Opis" style="font-size: 1.1rem; margin-top: 10px;">Залиште одне поле порожнім, щоб знайти його.</p>
+        <div class="art" id="perc_ans" style="margin-top: 15px; background: #f7e6f0; border-radius: 12px; padding: 15px; box-shadow: 0 2px 12px rgba(193,154,164,0.10); text-align: center;"></div>
+    </section>
+
 <h1 id="rozklad" class="Colored">Розклад Урокiв</h1>
     </main>
-<img src="photo_2025-11-24_22-28-32.jpg">
+<img src="myspace.jpg">
 <h1 class="Colored">Книжки</h1>
 <h1 id="kniga" class="Opis">Тут будуть книжки</h1>
 
@@ -361,7 +360,7 @@
 <a class="dayn" href="https://gdzonline.net/891-7-klas-kosta-workbook.html">WorkBook</a>
 <a class="dayn" href="https://gdzonline.net/886-english-7-klas-kosta.html">StudentBook</a>
 
-<!--Dayspedia.com widget--><div class="DPDC" cityid="9549" lang="uk" id="dayspedia_widget_1f7bf7e7afd18612" host="https://dayspedia.com" ampm="false" nightsign="true" sun="false" style="background-image: none;">
+<div class="DPDC" cityid="9549" lang="uk" id="dayspedia_widget_1f7bf7e7afd18612" host="https://dayspedia.com" ampm="false" nightsign="true" sun="false" style="background-image: none;">
 
 	<style media="screen" id="dayspedia_widget_1f7bf7e7afd18612_style">
 				/*COMMON*/
@@ -432,14 +431,380 @@
 			window.dwidget.init("dayspedia_widget_1f7bf7e7afd18612");
 		};
 	</script>
-	<!--/DPDC-->
-	</div><!--Dayspedia.com widget ENDS-->
+	</div></body>
 
-</body>
-<footer>
-  
-  
-   </footer>
-</body>
+<script>
+    // --- ГЛОБАЛЬНІ ЗМІННІ ДЛЯ КОНВЕРТЕРА ОДИНИЦЬ ---
+    const UNIT_MAPS = {
+        length: { // Базова одиниця: m
+            km: { name: 'км', factor: 1000 },
+            m: { name: 'м', factor: 1 },
+            cm: { name: 'см', factor: 0.01 },
+        },
+        mass: { // Базова одиниця: g
+            kg: { name: 'кг', factor: 1000 },
+            g: { name: 'г', factor: 1 },
+            mg: { name: 'мг', factor: 0.001 },
+        },
+        time: { // Базова одиниця: s
+            h: { name: 'год', factor: 3600 },
+            min: { name: 'хв', factor: 60 },
+            s: { name: 'сек', factor: 1 },
+        }
+    };
 
+    // --- ФУНКЦІЇ ДЛЯ КАЛЬКУЛЯТОРА В СТОВПЧИК ---
+    
+    const calcButton = document.getElementById('oms_nabor');
+    const num1Input = document.getElementById('oms_c1');
+    const num2Input = document.getElementById('oms_c2');
+    const operatorSelect = document.getElementById('Op');
+    const resultDiv = document.getElementById('oms_ans');
+
+    function calculate() {
+      const num1 = num1Input.value.trim();
+      const num2 = num2Input.value.trim();
+      const operator = operatorSelect.value;
+      
+      resultDiv.innerHTML = ''; // Очистити результат
+
+      if (!/^\d+$/.test(num1) || !/^\d+$/.test(num2) || num1 === '' || num2 === '') {
+        resultDiv.innerHTML = '<span style="color:red;">Помилка: Введіть два цілих числа!</span>';
+        return;
+      }
+      
+      const n1 = parseInt(num1);
+      const n2 = parseInt(num2);
+
+      if (operator === '×') {
+        longMultiplication(n1, n2);
+      } else if (operator === '÷') {
+        longDivision(n1, n2);
+      }
+    }
+    
+    // Прив'язати функцію до кнопки
+    calcButton.addEventListener('click', calculate);
+
+    // --- ЛОГІКА МНОЖЕННЯ В СТОВПЧИК ---
+    function longMultiplication(n1, n2) {
+      let steps = '';
+      let partials = [];
+      const n1Str = n1.toString();
+      const n2Str = n2.toString();
+
+      for (let i = n2Str.length - 1; i >= 0; i--) {
+        const digit = parseInt(n2Str[i]);
+        if (isNaN(digit)) continue;
+        let partial = (n1 * digit).toString();
+        // Сдвиг влево
+        let shift = n2Str.length - 1 - i;
+        partials.push(' '.repeat(shift) + partial);
+      }
+      // Определяем ширину для выравнивания
+      let maxLen = Math.max(n1Str.length, n2Str.length + 2, ...partials.map(p => p.length));
+      
+      steps += `<div style='text-align:right;font-size:1.5em;'>`;
+      steps += `${n1Str.padStart(maxLen, ' ')}<br>`;
+      steps += `×${n2Str.padStart(maxLen - 1, ' ')}<br>`;
+      steps += `${'-'.repeat(maxLen)}<br>`;
+      
+      for (let i = 0; i < partials.length; i++) {
+        steps += `${partials[i].padStart(maxLen, ' ')}<br>`;
+      }
+      
+      if (partials.length > 1) {
+        steps += `${'-'.repeat(maxLen)}<br>`;
+      }
+      
+      const result = (n1 * n2).toString();
+      steps += `<strong style='color:#c19aa4;'>${result.padStart(maxLen, ' ')}</strong>`;
+      steps += `</div>`;
+      resultDiv.innerHTML = steps;
+    }
+
+    // --- ВИПРАВЛЕНА ЛОГІКА ДІЛЕННЯ В СТОВПЧИК ---
+    function longDivision(dividend, divisor) {
+      const D = dividend.toString();
+      const R = divisor;
+      
+      if (R === 0) {
+        resultDiv.innerHTML = '<span style="color:red;">Помилка: Ділення на нуль!</span>';
+        return;
+      }
+      if (dividend < divisor) {
+        resultDiv.innerHTML = `<h2>${dividend} ÷ ${divisor} = <span style='color:#c19aa4;'>0 (ост. ${dividend})</span></h2>`;
+        return;
+      }
+      
+      let currentRemainder = 0;
+      let fullQuotient = '';
+      let visualSteps = [];
+      let currentPart = '';
+
+      for (let i = 0; i < D.length; i++) {
+          currentPart += D[i];
+          currentRemainder = parseInt(currentPart);
+
+          if (currentRemainder >= R || fullQuotient.length > 0) {
+              let qDigit = Math.floor(currentRemainder / R);
+              let subtrahend = qDigit * R;
+              let remainder = currentRemainder - subtrahend;
+              
+              if (fullQuotient.length === 0 && qDigit === 0 && i < D.length - 1) {
+                  // Skip leading zeros in quotient, but allow if it's the last digit and non-zero.
+              } else {
+                  fullQuotient += qDigit.toString();
+              }
+
+              if (qDigit > 0 || remainder !== currentRemainder) { // Save step only if division happened
+                  // Start position in the dividend (D) where currentPart started
+                  let startPos = i - currentPart.length + 1;
+
+                  visualSteps.push({
+                      dividendPart: currentPart,
+                      subtrahend: subtrahend.toString(),
+                      remainder: remainder.toString(),
+                      startOffset: startPos 
+                  });
+              }
+              
+              currentPart = remainder.toString() === '0' ? '' : remainder.toString();
+          }
+      }
+      
+      // Handle the case where the first digits are less than divisor (e.g., 125/25)
+      fullQuotient = fullQuotient.replace(/^0+/, '');
+      if (fullQuotient === '') fullQuotient = '0';
+      
+      let finalRemainder = parseInt(currentPart) || 0;
+
+      // --- HTML Rendering ---
+      let html = `<div style='font-family:monospace; font-size: 1.35em; line-height: 1.2; padding: 10px; text-align: left;'>`;
+      html += `<h2>${dividend} ÷ ${divisor} = <span style='color:#c19aa4;'>${fullQuotient}${(finalRemainder > 0 ? ` (ост. ${finalRemainder})` : '')}</span></h2>`;
+      
+      // Main Container: Division Visual
+      html += `<div style="display: flex; justify-content: flex-start; align-items: flex-start; margin-top: 10px;">`;
+      
+      // Left Column: The Steps (simulated)
+      html += `<div style="position: relative; line-height: 1.2;">`;
+      
+      // 1. Top line (Dividend and Divisor)
+      // Використовуємо monospace для точного вирівнювання
+      const digitWidth = 0.75; // Приблизна ширина одного символу 'em'
+      
+      html += `<div style="display: flex;">`;
+      html += `<span style="border-bottom: 1px solid black; padding-right: 0.5em;">${D}</span>`;
+      html += `<span style="border-left: 1px solid black; border-bottom: 1px solid black; padding-left: 0.5em;">${R}</span>`;
+      html += `</div>`;
+      
+      // 2. Quotient (aligned with divisor)
+      let quotientLeftPosition = D.length * digitWidth + 0.5;
+      html += `<div style="position: absolute; left: ${quotientLeftPosition}em; top: 1.2em; border-top: 1px solid black; padding-left: 0.5em;">${fullQuotient}</div>`;
+      
+      // 3. Subtraction steps
+      for (let i = 0; i < visualSteps.length; i++) {
+          const step = visualSteps[i];
+          const isLastStep = i === visualSteps.length - 1;
+
+          // Alignment logic: The divisor part starts at D[step.startOffset]
+          const startEm = step.startOffset * digitWidth;
+          
+          // Subtrahend
+          if (step.subtrahend !== '0') {
+              const subAlign = step.dividendPart.length - step.subtrahend.length;
+              const subOffsetEm = startEm + subAlign * digitWidth;
+
+              html += `<div style="text-align: left; position: relative; margin-top: 5px;">`;
+              html += `<span style="position: absolute; left: ${Math.max(0, startEm - digitWidth)}em;">-</span>`;
+              html += `<span style="padding-left: ${subOffsetEm}em; display: inline-block;">${step.subtrahend}</span>`;
+              html += `</div>`;
+              
+              // Line below subtrahend
+              html += `<div style="text-align: left;">`;
+              html += `<span style="padding-left: ${startEm}em; border-bottom: 1px solid black; display: inline-block; width: ${step.dividendPart.length * digitWidth}em;"></span>`;
+              html += `</div>`;
+          }
+
+          // Remainder
+          if (step.remainder !== '0' || (isLastStep && finalRemainder > 0)) {
+              const remAlign = step.dividendPart.length - step.remainder.length;
+              const remOffsetEm = startEm + remAlign * digitWidth;
+               
+               html += `<div style="text-align: left; margin-top: 5px;">`;
+               html += `<span style="padding-left: ${remOffsetEm}em; display: inline-block;">${step.remainder}</span>`;
+               html += `</div>`;
+          }
+      }
+
+      html += `</div>`; // Close Left Column
+      html += `</div>`; // Close Main Visual Container
+      html += `</div>`; // Close outer div
+
+      resultDiv.innerHTML = html;
+    }
+    
+    // --- ЛОГІКА КОНВЕРТЕРА ОДИНИЦЬ (оновлена) ---
+    
+    const categorySelect = document.getElementById('conv_category');
+    const convFromSelect = document.getElementById('conv_from');
+    const convToSelect = document.getElementById('conv_to');
+    const convValueInput = document.getElementById('conv_value');
+    const convAnsDiv = document.getElementById('conv_ans');
+    const convNaborBtn = document.getElementById('conv_nabor');
+
+    // Функція оновлення випадаючих списків
+    function updateUnitOptions() {
+        const category = categorySelect.value;
+        const units = UNIT_MAPS[category];
+        
+        let optionsHtml = '';
+        for (const key in units) {
+            optionsHtml += `<option value="${key}">${units[key].name} (${key})</option>`;
+        }
+
+        convFromSelect.innerHTML = optionsHtml;
+        convToSelect.innerHTML = optionsHtml;
+        
+        // Встановлюємо значення за замовчуванням (щоб уникнути помилок, якщо старе значення не існує)
+        if (category === 'length') {
+             convFromSelect.value = 'm';
+             convToSelect.value = 'cm';
+        } else if (category === 'mass') {
+             convFromSelect.value = 'kg';
+             convToSelect.value = 'g';
+        } else if (category === 'time') {
+             convFromSelect.value = 'min';
+             convToSelect.value = 's';
+        }
+    }
+    
+    function convertUnits() {
+        const value = parseFloat(convValueInput.value);
+        const fromUnitKey = convFromSelect.value;
+        const toUnitKey = convToSelect.value;
+        const category = categorySelect.value;
+        const units = UNIT_MAPS[category];
+
+        if (isNaN(value)) {
+            convAnsDiv.innerHTML = '<span style="color:red; font-size: 1.35em;">Помилка: Введіть числове значення!</span>';
+            return;
+        }
+        
+        if (fromUnitKey === toUnitKey) {
+            convAnsDiv.innerHTML = `<span style="font-size: 1.35em;">${value} ${units[fromUnitKey].name} = <strong style='color:#c19aa4;'>${value} ${units[fromUnitKey].name}</strong></span>`;
+            return;
+        }
+
+        const fromFactor = units[fromUnitKey].factor;
+        const toFactor = units[toUnitKey].factor;
+        
+        // 1. Конвертуємо в базову одиницю (наприклад, метр або грам)
+        let baseValue = value * fromFactor;
+
+        // 2. Конвертуємо з базової одиниці в цільову
+        let result = baseValue / toFactor;
+        
+        // Виведення результату з фіксацією до 5 знаків після коми
+        convAnsDiv.innerHTML = `<span style="font-size: 1.35em;">${value} ${units[fromUnitKey].name} = <strong style='color:#c19aa4;'>${result.toFixed(5).replace(/\.0+$/, '')} ${units[toUnitKey].name}</strong></span>`;
+    }
+
+    // Ініціалізація та прив'язка подій
+    categorySelect.addEventListener('change', updateUnitOptions);
+    convNaborBtn.addEventListener('click', convertUnits);
+    updateUnitOptions(); // Запуск при завантаженні для встановлення початкових опцій
+    
+    
+    // --- ЛОГІКА КАЛЬКУЛЯТОРА ВІДСОТКІВ (NEW) ---
+    
+    const percXInput = document.getElementById('perc_x');
+    const percYInput = document.getElementById('perc_y');
+    const percZInput = document.getElementById('perc_z');
+    const percAnsDiv = document.getElementById('perc_ans');
+    const percNaborBtn = document.getElementById('perc_nabor');
+    
+    function calculatePercentage() {
+        const X_str = percXInput.value.trim();
+        const Y_str = percZInput.value.trim(); // Y - відсоток
+        const Z_str = percYInput.value.trim(); // Z - ціле число
+
+        const inputCount = [X_str, Y_str, Z_str].filter(val => val !== '').length;
+        
+        if (inputCount !== 2) {
+            percAnsDiv.innerHTML = '<span style="color:red; font-size: 1.35em;">Помилка: Залиште рівно одне поле порожнім!</span>';
+            return;
+        }
+        
+        let result = '';
+        
+        // X = Y% від Z (X = Z * (Y/100))
+        if (X_str === '') {
+            const Y = parseFloat(Y_str);
+            const Z = parseFloat(Z_str);
+            if (isNaN(Y) || isNaN(Z)) {
+                percAnsDiv.innerHTML = '<span style="color:red; font-size: 1.35em;">Помилка: Всі введені значення повинні бути числами.</span>';
+                return;
+            }
+            const X = Z * (Y / 100);
+            result = `X = ${Z} * (${Y} / 100) = <strong style='color:#c19aa4;'>${X.toFixed(2).replace(/\.00$/, '')}</strong>`;
+        } 
+        
+        // Y% = (X / Z) * 100
+        else if (Y_str === '') {
+            const X = parseFloat(X_str);
+            const Z = parseFloat(Z_str);
+            if (isNaN(X) || isNaN(Z) || Z === 0) {
+                percAnsDiv.innerHTML = '<span style="color:red; font-size: 1.35em;">Помилка: Z має бути числом і не нулем.</span>';
+                return;
+            }
+            const Y = (X / Z) * 100;
+            result = `Y% = (${X} / ${Z}) * 100 = <strong style='color:#c19aa4;'>${Y.toFixed(2).replace(/\.00$/, '')} %</strong>`;
+        }
+        
+        // Z = X / (Y / 100)
+        else if (Z_str === '') {
+            const X = parseFloat(X_str);
+            const Y = parseFloat(Y_str);
+            if (isNaN(X) || isNaN(Y) || Y === 0) {
+                 percAnsDiv.innerHTML = '<span style="color:red; font-size: 1.35em;">Помилка: Y має бути числом і не нулем.</span>';
+                return;
+            }
+            const Z = X / (Y / 100);
+            result = `Z = ${X} / (${Y} / 100) = <strong style='color:#c19aa4;'>${Z.toFixed(2).replace(/\.00$/, '')}</strong>`;
+        }
+
+        percAnsDiv.innerHTML = `<span style="font-size: 1.25em;">${result}</span>`;
+    }
+
+    percNaborBtn.addEventListener('click', calculatePercentage);
+
+    // --- ЛОГІКА ДЛЯ КНОПОК НАВІГАЦІЇ ТА АУДІО ---
+    
+    // Кнопка "проиграть/пауза песню"
+    const playSongBtn = document.getElementById('playSongBtn');
+    const femboyAudio = document.getElementById('femboyAudio');
+    playSongBtn.onclick = function() {
+      if (femboyAudio.paused) {
+        femboyAudio.volume = 1;
+        femboyAudio.play();
+      } else {
+        femboyAudio.pause();
+      }
+    };
+    // Кнопка "наверх"
+    const toTopBtn = document.getElementById('toTopBtn');
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 200) {
+        toTopBtn.style.display = 'block';
+      } else {
+        toTopBtn.style.display = 'none';
+      }
+    });
+    toTopBtn.onclick = function() {
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    };
+    // Скрыта по умолчанию
+    toTopBtn.style.display = 'none';
+
+</script>
 </html>
